@@ -1,28 +1,21 @@
 #!/usr/bin/node
+const util = require('util');
+const request = util.promisify(require('request'));
+const filmdId = process.argv[2];
 
-const request = require('request');
-const num = process.argv[2];
-// console.log(`Num: ${num}`)
-const url = `https://swapi-api.alx-tools.com/api/films/${num}/`;
+async function characters (filmdId) {
+  const url = 'https://swapi-api.hbtn.io/api/films/' + filmdId;
+  let response = await (await request(url)).body;
+  response = JSON.parse(response);
+  const chars = response.chars;
 
-request(url, (error, response, body) => {
-  if (error) {
-    console.log(error);
+  for (let i = 0; i < chars.length; i++) {
+    const singChar = chars[i];
+    let character = await (await request(singChar)).body;
+
+    character = JSON.parse(character);
+    console.log(character.name);
   }
+}
 
-  const data = JSON.parse(body);
-  const characters = data.characters;
-
-  for (const i in characters) {
-    const url = characters[i];
-    request(url, (error, response, body) => {
-      if (error) {
-        console.log(error);
-      }
-
-      const dataOne = JSON.parse(body);
-
-      console.log(dataOne.name);
-    });
-  }
-});
+characters(filmdId);
